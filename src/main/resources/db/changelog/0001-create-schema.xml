@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="create-users-table" author="a.yakubov">
+    <changeSet id="001-create-users-table" author="a.yakubov">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="users"/>
@@ -30,7 +30,7 @@
 
             <column name="patronymic" type="varchar(50)"/>
 
-            <column name="gender" type="bool"/>
+            <column name="gender" type="bool" defaultValue="1"/>
 
             <column name="birthdate" type="date"/>
 
@@ -38,7 +38,13 @@
 
             <column name="email" type="varchar(50)"/>
 
-            <column name="balance" type="decimal"/>
+            <column name="balance" type="decimal" defaultValue="0"/>
+
+            <column name="created_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_time" type="timestamp"/>
         </createTable>
     </changeSet>
 

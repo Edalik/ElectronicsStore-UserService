@@ -11,15 +11,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 @Builder
+@DynamicInsert
+@DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
@@ -30,10 +37,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "login")
+    @Column(name = "login", updatable = false)
     private String login;
 
-    @Column(name = "password")
+    @Column(name = "password", updatable = false)
     private String password;
 
     @Column(name = "name")
@@ -57,7 +64,15 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "balance")
+    @Column(name = "balance", updatable = false)
     private BigDecimal balance;
+
+    @CreationTimestamp
+    @Column(name = "created_time", updatable = false)
+    private ZonedDateTime createdTime;
+
+    @UpdateTimestamp
+    @Column(name = "updated_time")
+    private ZonedDateTime updatedTime;
 
 }
