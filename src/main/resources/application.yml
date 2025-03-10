@@ -1,5 +1,6 @@
 server:
   port: 8082
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5450/postgres
@@ -7,6 +8,20 @@ spring:
     password: user_service
     hikari:
       schema: users
+
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
+
+springdoc:
+  api-docs:
+    path: /user-service/v3/api-docs
+  swagger-ui:
+    path: /user-service/swagger-ui.html
+
+logging:
+  level:
+    org:
+      zalando:
+        logbook:
+          Logbook: TRACE
