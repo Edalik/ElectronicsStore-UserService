@@ -32,7 +32,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
-@Tag(name = "User Service", description = "API для управления пользователями")
+@Tag(name = "User Controller", description = "API для управления пользователями")
 public class UserController {
 
     private final UserService userService;

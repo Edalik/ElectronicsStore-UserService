@@ -21,10 +21,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private static final String USER_NOT_FOUND_BY_ID = "User with id: %s was not found";
+    public static final String USER_NOT_FOUND_BY_ID = "User with id: %s was not found";
     private static final String USER_NOT_FOUND_BY_LOGIN = "User with login: %s was not found";
     private static final String USER_ALREADY_EXISTS = "User with login: %s already exists";
-    private static final String USER_DOES_NOT_EXIST = "User with id: %s does not exist";
 
     private final UserRepository userRepository;
 
@@ -55,7 +54,7 @@ public class UserServiceImpl implements UserService {
     public User update(UserUpdateDto dto) {
         Optional<User> user = userRepository.findById(dto.id());
         if (user.isEmpty()) {
-            throw new NotFoundException(USER_DOES_NOT_EXIST.formatted(dto.id()));
+            throw new NotFoundException(USER_NOT_FOUND_BY_ID.formatted(dto.id()));
         }
 
         return userRepository.save(userMapper.partialUpdate(dto, user.get()));
@@ -65,7 +64,7 @@ public class UserServiceImpl implements UserService {
     public void delete(UUID id) {
         int rowsAffected = userRepository.customDeleteById(id);
         if (rowsAffected < 1) {
-            throw new NotFoundException(USER_DOES_NOT_EXIST.formatted(id));
+            throw new NotFoundException(USER_NOT_FOUND_BY_ID.formatted(id));
         }
     }
 
