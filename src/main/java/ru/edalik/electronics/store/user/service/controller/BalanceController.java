@@ -1,7 +1,6 @@
 package ru.edalik.electronics.store.user.service.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,14 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.edalik.electronics.store.user.service.model.dto.BalanceDto;
 import ru.edalik.electronics.store.user.service.model.dto.exception.ErrorDto;
 import ru.edalik.electronics.store.user.service.service.interfaces.BalanceService;
-
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,15 +40,8 @@ public class BalanceController {
         content = @Content(schema = @Schema(implementation = ErrorDto.class))
     )
     @GetMapping
-    public ResponseEntity<BalanceDto> getUserBalance(
-        @Parameter(
-            description = "UUID пользователя",
-            required = true,
-            example = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-        )
-        @RequestHeader("User-Id") UUID userId
-    ) {
-        return new ResponseEntity<>(new BalanceDto(balanceService.getBalance(userId)), HttpStatus.OK);
+    public ResponseEntity<BalanceDto> getUserBalance() {
+        return new ResponseEntity<>(new BalanceDto(balanceService.getBalance()), HttpStatus.OK);
     }
 
     @Operation(
@@ -69,11 +58,8 @@ public class BalanceController {
         content = @Content(schema = @Schema(implementation = ErrorDto.class))
     )
     @PostMapping("/deposit")
-    public ResponseEntity<Void> deposit(
-        @RequestBody BalanceDto dto,
-        @RequestHeader("User-Id") UUID userId
-    ) {
-        balanceService.deposit(dto, userId);
+    public ResponseEntity<Void> deposit(@RequestBody BalanceDto dto) {
+        balanceService.deposit(dto);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -97,11 +83,8 @@ public class BalanceController {
         content = @Content(schema = @Schema(implementation = ErrorDto.class))
     )
     @PostMapping("/payment")
-    public ResponseEntity<Void> payment(
-        @RequestBody BalanceDto dto,
-        @RequestHeader("User-Id") UUID userId
-    ) {
-        balanceService.payment(dto, userId);
+    public ResponseEntity<Void> payment(@RequestBody BalanceDto dto) {
+        balanceService.payment(dto);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

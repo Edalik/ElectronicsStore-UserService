@@ -7,15 +7,10 @@ import org.springframework.stereotype.Repository;
 import ru.edalik.electronics.store.user.service.model.entity.User;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-
-    Optional<User> findByLogin(String login);
-
-    boolean existsByLogin(String login);
 
     @Modifying
     @Query("DELETE User u WHERE u.id = :id")

@@ -13,6 +13,12 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/electronics-store
+
 springdoc:
   api-docs:
     path: /user-service/v3/api-docs

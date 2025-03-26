@@ -7,7 +7,6 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import ru.edalik.electronics.store.user.service.model.dto.UserDto;
-import ru.edalik.electronics.store.user.service.model.dto.UserRegisterDto;
 import ru.edalik.electronics.store.user.service.model.dto.UserUpdateDto;
 import ru.edalik.electronics.store.user.service.model.entity.User;
 
@@ -17,8 +16,6 @@ public interface UserMapper {
     User toEntity(UserDto userDto);
 
     User toEntity(UserUpdateDto userDto);
-
-    User toEntity(UserRegisterDto userDto);
 
     UserDto toDto(User user);
 

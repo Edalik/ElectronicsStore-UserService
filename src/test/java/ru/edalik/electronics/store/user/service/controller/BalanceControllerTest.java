@@ -3,6 +3,7 @@ package ru.edalik.electronics.store.user.service.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -13,7 +14,6 @@ import ru.edalik.electronics.store.user.service.model.exception.NotFoundExceptio
 import ru.edalik.electronics.store.user.service.service.interfaces.BalanceService;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -24,17 +24,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BalanceController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class BalanceControllerTest {
 
     static final String BASE_URL = "/api/v1/users/balance";
-    static final String USER_ID_HEADER = "User-Id";
-    static final UUID USER_ID = UUID.randomUUID();
     static final BigDecimal AMOUNT = BigDecimal.ONE;
     static final String DEPOSIT = "/deposit";
     static final String PAYMENT = "/payment";
     static final String USER_NOT_FOUND = "User not found";
     static final String NOT_FOUND = "Not Found";
-
 
     @Autowired
     MockMvc mockMvc;
@@ -47,28 +45,20 @@ class BalanceControllerTest {
 
     @Test
     void getUserBalance_ExistingUser_ReturnsBalance() throws Exception {
-        when(balanceService.getBalance(USER_ID)).thenReturn(AMOUNT);
+        when(balanceService.getBalance()).thenReturn(AMOUNT);
 
-        mockMvc.perform(get(BASE_URL)
-                .header(USER_ID_HEADER, USER_ID))
+        mockMvc.perform(get(BASE_URL))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.amount").value(AMOUNT));
     }
 
     @Test
     void getUserBalance_UserNotFound_ReturnsNotFound() throws Exception {
-        when(balanceService.getBalance(USER_ID)).thenThrow(new NotFoundException(USER_NOT_FOUND));
+        when(balanceService.getBalance()).thenThrow(new NotFoundException(USER_NOT_FOUND));
 
-        mockMvc.perform(get(BASE_URL)
-                .header(USER_ID_HEADER, USER_ID))
+        mockMvc.perform(get(BASE_URL))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.error").value(NOT_FOUND));
-    }
-
-    @Test
-    void getUserBalance_MissingUserId_ReturnsBadRequest() throws Exception {
-        mockMvc.perform(get(BASE_URL))
-            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -76,21 +66,19 @@ class BalanceControllerTest {
         BalanceDto dto = new BalanceDto(AMOUNT);
 
         mockMvc.perform(post(BASE_URL + DEPOSIT)
-                .header(USER_ID_HEADER, USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andExpect(status().isOk());
 
-        verify(balanceService).deposit(dto, USER_ID);
+        verify(balanceService).deposit(dto);
     }
 
     @Test
     void deposit_UserNotFound_ReturnsNotFound() throws Exception {
         BalanceDto dto = new BalanceDto(AMOUNT);
-        doThrow(new NotFoundException(USER_NOT_FOUND)).when(balanceService).deposit(dto, USER_ID);
+        doThrow(new NotFoundException(USER_NOT_FOUND)).when(balanceService).deposit(dto);
 
         mockMvc.perform(post(BASE_URL + DEPOSIT)
-                .header(USER_ID_HEADER, USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andExpect(status().isNotFound())
@@ -102,22 +90,20 @@ class BalanceControllerTest {
         BalanceDto dto = new BalanceDto(AMOUNT);
 
         mockMvc.perform(post(BASE_URL + PAYMENT)
-                .header(USER_ID_HEADER, USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andExpect(status().isOk());
 
-        verify(balanceService).payment(dto, USER_ID);
+        verify(balanceService).payment(dto);
     }
 
     @Test
     void payment_InsufficientFunds_ReturnsBadRequest() throws Exception {
         BalanceDto dto = new BalanceDto(AMOUNT);
         doThrow(new InsufficientFunds())
-            .when(balanceService).payment(dto, USER_ID);
+            .when(balanceService).payment(dto);
 
         mockMvc.perform(post(BASE_URL + PAYMENT)
-                .header(USER_ID_HEADER, USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andExpect(status().isBadRequest())
@@ -127,24 +113,13 @@ class BalanceControllerTest {
     @Test
     void payment_UserNotFound_ReturnsNotFound() throws Exception {
         BalanceDto dto = new BalanceDto(AMOUNT);
-        doThrow(new NotFoundException(USER_NOT_FOUND)).when(balanceService).payment(dto, USER_ID);
+        doThrow(new NotFoundException(USER_NOT_FOUND)).when(balanceService).payment(dto);
 
         mockMvc.perform(post(BASE_URL + PAYMENT)
-                .header(USER_ID_HEADER, USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.error").value(NOT_FOUND));
-    }
-
-    @Test
-    void payment_MissingUserId_ReturnsBadRequest() throws Exception {
-        BalanceDto dto = new BalanceDto(AMOUNT);
-
-        mockMvc.perform(post(BASE_URL + PAYMENT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-            .andExpect(status().isBadRequest());
     }
 
 }

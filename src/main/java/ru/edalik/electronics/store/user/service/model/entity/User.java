@@ -2,8 +2,6 @@ package ru.edalik.electronics.store.user.service.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -34,14 +32,10 @@ public class User {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "login", updatable = false)
     private String login;
-
-    @Column(name = "password", updatable = false)
-    private String password;
 
     @Column(name = "name")
     private String name;
@@ -61,7 +55,7 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "email")
+    @Column(name = "email", updatable = false)
     private String email;
 
     @Column(name = "balance", updatable = false)
