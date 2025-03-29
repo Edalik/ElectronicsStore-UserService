@@ -13,6 +13,7 @@ import ru.edalik.electronics.store.user.service.model.exception.InsufficientFund
 import ru.edalik.electronics.store.user.service.model.exception.NotFoundException;
 import ru.edalik.electronics.store.user.service.repository.UserRepository;
 import ru.edalik.electronics.store.user.service.service.interfaces.BalanceService;
+import ru.edalik.electronics.store.user.service.service.security.UserContextService;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -25,7 +26,10 @@ public class BalanceServiceImpl implements BalanceService {
 
     private final UserRepository userRepository;
 
-    public BigDecimal getBalance(UUID id) {
+    private final UserContextService userContextService;
+
+    public BigDecimal getBalance() {
+        UUID id = userContextService.getUserGuid();
         User user = userRepository.findById(id)
             .orElseThrow(
                 () -> new NotFoundException(USER_NOT_FOUND_BY_ID.formatted(id))
@@ -37,7 +41,8 @@ public class BalanceServiceImpl implements BalanceService {
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
-    public void deposit(BalanceDto dto, UUID id) {
+    public void deposit(BalanceDto dto) {
+        UUID id = userContextService.getUserGuid();
         int rowsAffected = userRepository.deposit(dto.amount(), id);
         if (rowsAffected < 1) {
             throw new NotFoundException(USER_NOT_FOUND_BY_ID.formatted(id));
@@ -47,7 +52,8 @@ public class BalanceServiceImpl implements BalanceService {
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
-    public void payment(BalanceDto dto, UUID id) {
+    public void payment(BalanceDto dto) {
+        UUID id = userContextService.getUserGuid();
         User user = userRepository.findById(id)
             .orElseThrow(
                 () -> new NotFoundException(USER_NOT_FOUND_BY_ID.formatted(id))

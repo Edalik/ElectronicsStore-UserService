@@ -1,5 +1,6 @@
 package ru.edalik.electronics.store.user.service.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,6 +11,7 @@ import ru.edalik.electronics.store.user.service.model.entity.User;
 import ru.edalik.electronics.store.user.service.model.exception.InsufficientFunds;
 import ru.edalik.electronics.store.user.service.model.exception.NotFoundException;
 import ru.edalik.electronics.store.user.service.repository.UserRepository;
+import ru.edalik.electronics.store.user.service.service.security.UserContextService;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -17,6 +19,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static ru.edalik.electronics.store.user.service.service.UserServiceImpl.USER_NOT_FOUND_BY_ID;
@@ -31,6 +34,9 @@ class BalanceServiceImplTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    UserContextService userContextService;
+
     @InjectMocks
     BalanceServiceImpl balanceService;
 
@@ -41,11 +47,16 @@ class BalanceServiceImplTest {
 
     BalanceDto balanceDto = new BalanceDto(AMOUNT);
 
+    @BeforeEach
+    void setUp() {
+        lenient().when(userContextService.getUserGuid()).thenReturn(USER_ID);
+    }
+
     @Test
     void getBalance_ShouldReturnBalance_WhenUserExists() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
 
-        BigDecimal result = balanceService.getBalance(USER_ID);
+        BigDecimal result = balanceService.getBalance();
 
         assertEquals(BALANCE, result);
     }
@@ -54,13 +65,13 @@ class BalanceServiceImplTest {
     void getBalance_ShouldThrowNotFoundException_WhenUserNotExists() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> balanceService.getBalance(USER_ID));
+        assertThrows(NotFoundException.class, () -> balanceService.getBalance());
     }
 
     @Test
     void deposit_ShouldUpdateBalance_WhenUserExists() {
         when(userRepository.deposit(balanceDto.amount(), USER_ID)).thenReturn(1);
-        balanceService.deposit(balanceDto, USER_ID);
+        balanceService.deposit(balanceDto);
 
         verify(userRepository).deposit(balanceDto.amount(), USER_ID);
     }
@@ -71,7 +82,7 @@ class BalanceServiceImplTest {
 
         Exception exception = assertThrows(
             NotFoundException.class,
-            () -> balanceService.deposit(balanceDto, USER_ID)
+            () -> balanceService.deposit(balanceDto)
         );
 
         assertEquals(USER_NOT_FOUND_BY_ID.formatted(USER_ID), exception.getMessage());
@@ -82,7 +93,7 @@ class BalanceServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
         when(userRepository.payment(balanceDto.amount(), USER_ID)).thenReturn(1);
 
-        balanceService.payment(balanceDto, USER_ID);
+        balanceService.payment(balanceDto);
 
         verify(userRepository).payment(balanceDto.amount(), USER_ID);
     }
@@ -98,7 +109,7 @@ class BalanceServiceImplTest {
 
         assertThrows(
             InsufficientFunds.class,
-            () -> balanceService.payment(balanceDto, USER_ID)
+            () -> balanceService.payment(balanceDto)
         );
     }
 
@@ -108,7 +119,7 @@ class BalanceServiceImplTest {
 
         assertThrows(
             NotFoundException.class,
-            () -> balanceService.payment(balanceDto, USER_ID)
+            () -> balanceService.payment(balanceDto)
         );
     }
 
@@ -119,7 +130,7 @@ class BalanceServiceImplTest {
 
         Exception exception = assertThrows(
             NotFoundException.class,
-            () -> balanceService.payment(balanceDto, USER_ID)
+            () -> balanceService.payment(balanceDto)
         );
 
         assertEquals(USER_NOT_FOUND_BY_ID.formatted(USER_ID), exception.getMessage());
