@@ -19,6 +19,15 @@ spring:
         jwt:
           issuer-uri: http://localhost:8090/realms/electronics-store
 
+management:
+  observations:
+    annotations:
+      enabled: true
+  tracing:
+    enabled: true
+    propagation:
+      type: b3_multi
+
 springdoc:
   api-docs:
     path: /user-service/v3/api-docs
