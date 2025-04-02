@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/postgres
+    username: user_service
+    password: user_service
+    hikari:
+      schema: users
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://keycloak:8080/realms/electronics-store/protocol/openid-connect/certs
+
+  application:
+    name: user-service
+
+management:
+  observations:
+    annotations:
+      enabled: true
+  tracing:
+    enabled: true
+    propagation:
+      type: b3_multi
+
+springdoc:
+  api-docs:
+    path: /user-service/v3/api-docs
+  swagger-ui:
+    path: /user-service/swagger-ui.html
+
+logging:
+  level:
+    org:
+      zalando:
+        logbook:
+          Logbook: TRACE
